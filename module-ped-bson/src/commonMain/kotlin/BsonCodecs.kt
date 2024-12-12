@@ -300,17 +300,17 @@ typealias BsonIdCodec = BsonIDCodec
  *
  * @since 2.0.0
  */
-object BsonIDCodec : BsonCodec<ID<*>> {
+object BsonIDCodec : BsonCodec<ID<Any?>> {
     override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: ID<*> ->
+        tryInlineCodec(value) { it: ID<Any?> ->
             success(it.bson)
         }
 
     override fun decode(value: Any?) =
         tryInlineCodec(value) { it: BsonElement ->
             when (it) {
-                is BsonObjectId -> success(ID<Any>(it.value))
-                is BsonString -> success(ID(it.value))
+                is BsonObjectId -> success(ID<Any?>(it.value))
+                is BsonString -> success(ID<Any?>(it.value))
                 else -> failure(
                     CodecException(
                         "Cannot decode ${it::class}; expected either " +
