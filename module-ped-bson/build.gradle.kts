@@ -15,8 +15,8 @@ kotlin {
                 implementation(project(":ped-core"))
 
                 implementation(kotlin("stdlib"))
-                implementation(libs.kotlin.serialization.json)
-                implementation(libs.kotlin.datetime)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.datetime)
 
                 implementation(libs.bsonkt)
             }

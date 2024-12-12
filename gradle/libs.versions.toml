@@ -1,13 +1,18 @@
 [versions]
-kotlin = "2.0.0"
+kotlin = "2.1.0"
+kotlinx-serialization = "1.7.3"
+kotlinx-coroutines = "1.9.0"
+kotlinx-datetime = "0.6.1"
+
+mongodb = "5.2.1"
+
+mongokt = "0.1.2"
 
 [libraries]
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.1" }
-kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.0" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
-tink = { module = "com.google.crypto.tink:tink", version = "1.10.0" }
+mongodb-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongodb" }
+mongodb-reactivestreams = { module = "org.mongodb:mongodb-driver-reactivestreams", version.ref = "mongodb" }
 
-mongodb-sync = { module = "org.mongodb:mongodb-driver-sync", version = "5.1.1" }
-mongodb-reactivestreams = { module = "org.mongodb:mongodb-driver-reactivestreams", version = "5.1.1" }
-
-bsonkt = { module = "org.cufy.mongokt:bsonkt", version = "0.1.0" }
+bsonkt = { module = "org.cufy.mongokt:bsonkt", version.ref = "mongokt" }

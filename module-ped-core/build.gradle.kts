@@ -18,8 +18,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(kotlin("stdlib"))
-                implementation(libs.kotlin.serialization.json)
-                implementation(libs.kotlin.datetime)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.datetime)
             }
         }
         commonTest {
