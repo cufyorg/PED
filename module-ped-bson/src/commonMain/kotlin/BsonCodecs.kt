@@ -162,7 +162,7 @@ object BsonBooleanCodec : BsonCodec<Boolean> {
 /* ============= ------------------ ============= */
 
 /**
- * The codec for [Int] and [BsonInt32].
+ * The codec for [Int] and [BsonNumber].
  *
  * @since 2.0.0
  */
@@ -173,15 +173,15 @@ object BsonInt32Codec : BsonCodec<Int> {
         }
 
     override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonInt32 ->
-            success(it.value)
+        tryInlineCodec(value) { it: BsonNumber ->
+            success(it.toInt())
         }
 }
 
 /* ============= ------------------ ============= */
 
 /**
- * The codec for [Long] and [BsonInt64].
+ * The codec for [Long] and [BsonNumber].
  *
  * @since 2.0.0
  */
@@ -192,15 +192,15 @@ object BsonInt64Codec : BsonCodec<Long> {
         }
 
     override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonInt64 ->
-            success(it.value)
+        tryInlineCodec(value) { it: BsonNumber ->
+            success(it.toLong())
         }
 }
 
 /* ============= ------------------ ============= */
 
 /**
- * The codec for [Double] and [BsonDouble].
+ * The codec for [Double] and [BsonNumber].
  *
  * @since 2.0.0
  */
@@ -211,8 +211,8 @@ object BsonDoubleCodec : BsonCodec<Double> {
         }
 
     override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonDouble ->
-            success(it.value)
+        tryInlineCodec(value) { it: BsonNumber ->
+            success(it.toDouble())
         }
 }
 
@@ -230,8 +230,8 @@ object BsonDecimal128Codec : BsonCodec<Decimal128> {
         }
 
     override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonDecimal128 ->
-            success(it.value)
+        tryInlineCodec(value) { it: BsonNumber ->
+            success(it.toDecimal128())
         }
 }
 
