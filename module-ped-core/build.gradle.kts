@@ -6,9 +6,10 @@ plugins {
 }
 
 kotlin {
-    jvm {
-        withJava()
+    compilerOptions {
+        optIn.add("kotlin.time.ExperimentalTime")
     }
+    jvm()
     js(IR) {
         browser {
             binaries.library()
@@ -19,7 +20,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.kotlinx.datetime)
             }
         }
         commonTest {

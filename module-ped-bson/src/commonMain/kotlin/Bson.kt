@@ -15,8 +15,14 @@
  */
 package org.cufy.ped
 
-import kotlinx.datetime.Instant
 import org.cufy.bson.*
+import org.cufy.ped.Bson.Boolean
+import org.cufy.ped.Bson.Decimal128
+import org.cufy.ped.Bson.Double
+import org.cufy.ped.Bson.ID
+import org.cufy.ped.Bson.Instant
+import org.cufy.ped.Bson.ObjectId
+import org.cufy.ped.Bson.String
 
 @Deprecated("Use Bson object instead", ReplaceWith("Bson"))
 val Codecs get() = Bson

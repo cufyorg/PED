@@ -15,10 +15,10 @@
  */
 package org.cufy.ped
 
-import kotlinx.datetime.Instant
 import org.cufy.bson.*
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
+import kotlin.time.Instant
 
 /* ============= ------------------ ============= */
 

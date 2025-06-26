@@ -7,7 +7,7 @@ group = "org.cufy"
 version = "2.0.0"
 
 tasks.wrapper {
-    gradleVersion = "8.2.1"
+    gradleVersion = "8.14"
 }
 
 subprojects {
