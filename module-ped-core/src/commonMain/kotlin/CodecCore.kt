@@ -32,6 +32,7 @@ import kotlin.jvm.JvmName
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 inline fun <I, O> tryEncodeAny(value: Any?, codec: Codec<I, O>): Result<O> {
     return codec.encode(value)
 }
@@ -46,11 +47,9 @@ inline fun <I, O> tryEncodeAny(value: Any?, codec: Codec<I, O>): Result<O> {
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 fun <I, O> encodeAny(value: Any?, codec: Codec<I, O>): O {
-    return tryEncodeAny(value, codec).getOrElse {
-        if (it is CodecException) throw it
-        throw CodecException(cause = it)
-    }
+    return codec.encode(value).getOrElse { throw it.toCodecException() }
 }
 
 /**
@@ -64,8 +63,9 @@ fun <I, O> encodeAny(value: Any?, codec: Codec<I, O>): O {
  */
 @JvmName("encodeAnyInfix")
 @PEDMarker3
+@Deprecated("Will be removed in the future")
 inline infix fun <I, O> Any?.encodeAny(codec: Codec<I, O>): O {
-    return encodeAny(this, codec)
+    return codec.encode(this).getOrElse { throw it.toCodecException() }
 }
 
 // Encode
@@ -80,7 +80,7 @@ inline infix fun <I, O> Any?.encodeAny(codec: Codec<I, O>): O {
  */
 @PEDMarker2
 inline fun <I, O> tryEncode(value: I, codec: Codec<I, O>): Result<O> {
-    return tryEncodeAny(value, codec)
+    return codec.encode(value)
 }
 
 /**
@@ -94,7 +94,7 @@ inline fun <I, O> tryEncode(value: I, codec: Codec<I, O>): Result<O> {
  */
 @PEDMarker2
 inline fun <I, O> encode(value: I, codec: Codec<I, O>): O {
-    return encodeAny(value, codec)
+    return codec.encode(value).getOrElse { throw it.toCodecException() }
 }
 
 /**
@@ -109,7 +109,7 @@ inline fun <I, O> encode(value: I, codec: Codec<I, O>): O {
 @JvmName("encodeInfix")
 @PEDMarker3
 inline infix fun <I, O> I.encode(codec: Codec<I, O>): O {
-    return encodeAny(this, codec)
+    return codec.encode(this).getOrElse { throw it.toCodecException() }
 }
 
 /* ============= ------------------ ============= */
@@ -125,6 +125,7 @@ inline infix fun <I, O> I.encode(codec: Codec<I, O>): O {
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 inline fun <I, O> tryDecodeAny(value: Any?, codec: Codec<I, O>): Result<I> {
     return codec.decode(value)
 }
@@ -139,11 +140,9 @@ inline fun <I, O> tryDecodeAny(value: Any?, codec: Codec<I, O>): Result<I> {
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 fun <I, O> decodeAny(value: Any?, codec: Codec<I, O>): I {
-    return tryDecodeAny(value, codec).getOrElse {
-        if (it is CodecException) throw it
-        throw CodecException(cause = it)
-    }
+    return codec.decode(value).getOrElse { throw it.toCodecException() }
 }
 
 /**
@@ -157,8 +156,9 @@ fun <I, O> decodeAny(value: Any?, codec: Codec<I, O>): I {
  */
 @JvmName("decodeAnyInfix")
 @PEDMarker3
+@Deprecated("Will be removed in the future")
 inline infix fun <I, O> Any?.decodeAny(codec: Codec<I, O>): I {
-    return decodeAny(this, codec)
+    return codec.decode(this).getOrElse { throw it.toCodecException() }
 }
 
 // Decode
@@ -173,7 +173,7 @@ inline infix fun <I, O> Any?.decodeAny(codec: Codec<I, O>): I {
  */
 @PEDMarker2
 inline fun <I, O> tryDecode(value: O, codec: Codec<I, O>): Result<I> {
-    return tryDecodeAny(value, codec)
+    return codec.decode(value)
 }
 
 /**
@@ -188,7 +188,7 @@ inline fun <I, O> tryDecode(value: O, codec: Codec<I, O>): Result<I> {
 @Suppress("NOTHING_TO_INLINE")
 @PEDMarker2
 inline fun <I, O> decode(value: O, codec: Codec<I, O>): I {
-    return decodeAny(value, codec)
+    return codec.decode(value).getOrElse { throw it.toCodecException() }
 }
 
 /**
@@ -204,7 +204,7 @@ inline fun <I, O> decode(value: O, codec: Codec<I, O>): I {
 @JvmName("decodeInfix")
 @PEDMarker3
 inline infix fun <I, O> O.decode(codec: Codec<I, O>): I {
-    return decodeAny(this, codec)
+    return codec.decode(this).getOrElse { throw it.toCodecException() }
 }
 
 /* ============= ------------------ ============= */

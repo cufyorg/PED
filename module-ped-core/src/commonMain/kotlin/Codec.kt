@@ -58,15 +58,8 @@ interface Codec<I, O> {
 infix fun <I, O> Codec<I, O>.defaultIn(defaultValue: I): Codec<I, O> {
     val codec = this
     return object : Codec<I, O> {
-        override fun encode(value: Any?): Result<O> {
-            return codec.encode(value)
-        }
-
-        override fun decode(value: Any?): Result<I> {
-            return runCatching {
-                codec.decode(value).getOrDefault(defaultValue)
-            }
-        }
+        override fun encode(value: Any?) = codec.encode(value)
+        override fun decode(value: Any?) = runCatching { codec.decode(value).getOrDefault(defaultValue) }
     }
 }
 
@@ -77,15 +70,8 @@ infix fun <I, O> Codec<I, O>.defaultIn(defaultValue: I): Codec<I, O> {
 infix fun <I, O> Codec<I, O>.catchIn(block: (Throwable) -> I): Codec<I, O> {
     val codec = this
     return object : Codec<I, O> {
-        override fun encode(value: Any?): Result<O> {
-            return codec.encode(value)
-        }
-
-        override fun decode(value: Any?): Result<I> {
-            return runCatching {
-                codec.decode(value).getOrElse(block)
-            }
-        }
+        override fun encode(value: Any?) = codec.encode(value)
+        override fun decode(value: Any?) = runCatching { codec.decode(value).getOrElse(block) }
     }
 }
 
@@ -96,15 +82,8 @@ infix fun <I, O> Codec<I, O>.catchIn(block: (Throwable) -> I): Codec<I, O> {
 infix fun <I, O> Codec<I, O>.defaultOut(defaultValue: O): Codec<I, O> {
     val codec = this
     return object : Codec<I, O> {
-        override fun encode(value: Any?): Result<O> {
-            return runCatching {
-                codec.encode(value).getOrDefault(defaultValue)
-            }
-        }
-
-        override fun decode(value: Any?): Result<I> {
-            return codec.decode(value)
-        }
+        override fun encode(value: Any?) = runCatching { codec.encode(value).getOrDefault(defaultValue) }
+        override fun decode(value: Any?) = codec.decode(value)
     }
 }
 
@@ -115,15 +94,8 @@ infix fun <I, O> Codec<I, O>.defaultOut(defaultValue: O): Codec<I, O> {
 infix fun <I, O> Codec<I, O>.catchOut(block: (Throwable) -> O): Codec<I, O> {
     val codec = this
     return object : Codec<I, O> {
-        override fun encode(value: Any?): Result<O> {
-            return runCatching {
-                codec.encode(value).getOrElse(block)
-            }
-        }
-
-        override fun decode(value: Any?): Result<I> {
-            return codec.decode(value)
-        }
+        override fun encode(value: Any?) = runCatching { codec.encode(value).getOrElse(block) }
+        override fun decode(value: Any?) = codec.decode(value)
     }
 }
 

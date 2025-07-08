@@ -7,6 +7,7 @@ plugins {
 
 kotlin {
     compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
         optIn.add("kotlin.time.ExperimentalTime")
     }
     jvm()

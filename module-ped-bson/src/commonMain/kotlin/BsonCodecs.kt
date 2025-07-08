@@ -23,6 +23,8 @@ import kotlin.time.Instant
 /* ============= ------------------ ============= */
 
 typealias BsonCodec<I> = Codec<I, BsonElement>
+typealias BsonFieldCodec<I> = FieldCodec<I, BsonElement>
+typealias BsonEnumCodec<I> = EnumCodec<I, BsonElement>
 
 /* ============= ------------------ ============= */
 
@@ -36,18 +38,16 @@ typealias BsonCodec<I> = Codec<I, BsonElement>
  * @author LSafer
  * @since 2.0.0
  */
-class BsonNullableCodec<I>(val codec: BsonCodec<I>) : NullableCodec<I, BsonElement> {
-    override fun encode(value: Any?) =
-        when (value) {
-            null -> success(BsonNull)
-            else -> codec.encode(value)
-        }
+class BsonNullableCodec<I>(val codec: BsonCodec<I>) : Codec<I?, BsonElement> {
+    override fun encode(value: Any?) = when (value) {
+        null -> success(BsonNull)
+        else -> codec.encode(value)
+    }
 
-    override fun decode(value: Any?) =
-        when (value) {
-            null, BsonNull, BsonUndefined -> success(null)
-            else -> codec.decode(value)
-        }
+    override fun decode(value: Any?) = when (value) {
+        null, BsonNull, BsonUndefined -> success(null)
+        else -> codec.decode(value)
+    }
 }
 
 /**
@@ -67,7 +67,7 @@ val <I> BsonCodec<I>.Nullable: BsonNullableCodec<I>
  *
  * Nullish values includes `null`, [BsonNull] and [BsonUndefined]
  */
-val <I> FieldCodec<I, BsonElement>.Nullable: BsonNullableFieldCodec<I>
+val <I> FieldCodec<I, BsonElement>.Nullable: BsonFieldCodec<I?>
     get() = FieldCodec(name, (this as BsonCodec<I>).Nullable)
 
 /* ============= ------------------ ============= */
@@ -78,21 +78,23 @@ val <I> FieldCodec<I, BsonElement>.Nullable: BsonNullableFieldCodec<I>
  * individual item.
  */
 class BsonArrayCodec<I>(val codec: BsonCodec<I>) : BsonCodec<List<I>> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: List<*> ->
-            success(BsonArray {
-                it.mapTo(this) {
-                    encodeAny(it, codec)
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: List<*> ->
+        success(BsonArray {
+            it.mapTo(contextOf()) {
+                codec.encode(it).getOrElse { e ->
+                    return@tryInlineCodec failure(e)
                 }
-            })
-        }
+            }
+        })
+    }
 
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonArray ->
-            success(it.map {
-                decodeAny(it, codec)
-            })
-        }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonArray ->
+        success(it.map {
+            codec.decode(it).getOrElse { e ->
+                return@tryInlineCodec failure(e)
+            }
+        })
+    }
 }
 
 /**
@@ -129,15 +131,8 @@ object BsonDocumentCodec : BsonCodec<BsonDocument> {
  * @since 2.0.0
  */
 object BsonStringCodec : BsonCodec<String> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: String ->
-            success(BsonString(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonString ->
-            success(it.value)
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: String -> success(BsonString(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonString -> success(it.value) }
 }
 
 /* ============= ------------------ ============= */
@@ -148,15 +143,8 @@ object BsonStringCodec : BsonCodec<String> {
  * @since 2.0.0
  */
 object BsonBooleanCodec : BsonCodec<Boolean> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: Boolean ->
-            success(BsonBoolean(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonBoolean ->
-            success(it.value)
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: Boolean -> success(BsonBoolean(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonBoolean -> success(it.value) }
 }
 
 /* ============= ------------------ ============= */
@@ -167,15 +155,8 @@ object BsonBooleanCodec : BsonCodec<Boolean> {
  * @since 2.0.0
  */
 object BsonInt32Codec : BsonCodec<Int> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: Int ->
-            success(BsonInt32(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonNumber ->
-            success(it.toInt())
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: Int -> success(BsonInt32(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonNumber -> success(it.toInt()) }
 }
 
 /* ============= ------------------ ============= */
@@ -186,15 +167,8 @@ object BsonInt32Codec : BsonCodec<Int> {
  * @since 2.0.0
  */
 object BsonInt64Codec : BsonCodec<Long> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: Long ->
-            success(BsonInt64(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonNumber ->
-            success(it.toLong())
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: Long -> success(BsonInt64(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonNumber -> success(it.toLong()) }
 }
 
 /* ============= ------------------ ============= */
@@ -205,15 +179,8 @@ object BsonInt64Codec : BsonCodec<Long> {
  * @since 2.0.0
  */
 object BsonDoubleCodec : BsonCodec<Double> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: Double ->
-            success(BsonDouble(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonNumber ->
-            success(it.toDouble())
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: Double -> success(BsonDouble(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonNumber -> success(it.toDouble()) }
 }
 
 /* ============= ------------------ ============= */
@@ -224,15 +191,8 @@ object BsonDoubleCodec : BsonCodec<Double> {
  * @since 2.0.0
  */
 object BsonDecimal128Codec : BsonCodec<Decimal128> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: Decimal128 ->
-            success(BsonDecimal128(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonNumber ->
-            success(it.toDecimal128())
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: Decimal128 -> success(BsonDecimal128(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonNumber -> success(it.toDecimal128()) }
 }
 
 /**
@@ -241,15 +201,8 @@ object BsonDecimal128Codec : BsonCodec<Decimal128> {
  * @since 2.0.0
  */
 object BsonDateTimeCodec : BsonCodec<Long> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: Long ->
-            success(BsonDateTime(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonDateTime ->
-            success(it.value)
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: Long -> success(BsonDateTime(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonDateTime -> success(it.value) }
 }
 
 /* ============= ------------------ ============= */
@@ -260,15 +213,8 @@ object BsonDateTimeCodec : BsonCodec<Long> {
  * @since 2.0.0
  */
 object BsonInstantCodec : BsonCodec<Instant> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: Instant ->
-            success(BsonDateTime(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonDateTime ->
-            success(Instant.fromEpochMilliseconds(it.value))
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: Instant -> success(BsonDateTime(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonDateTime -> success(it.toInstant()) }
 }
 
 /* ============= ------------------ ============= */
@@ -279,15 +225,8 @@ object BsonInstantCodec : BsonCodec<Instant> {
  * @since 2.0.0
  */
 object BsonObjectIdCodec : BsonCodec<ObjectId> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: ObjectId ->
-            success(BsonObjectId(it))
-        }
-
-    override fun decode(value: Any?) =
-        tryInlineCodec(value) { it: BsonObjectId ->
-            success(it.value)
-        }
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: ObjectId -> success(BsonObjectId(it)) }
+    override fun decode(value: Any?) = tryInlineCodec(value) { it: BsonObjectId -> success(it.value) }
 }
 
 /* ============= ------------------ ============= */
@@ -301,16 +240,12 @@ typealias BsonIdCodec = BsonIDCodec
  * @since 2.0.0
  */
 object BsonIDCodec : BsonCodec<ID<Any?>> {
-    override fun encode(value: Any?) =
-        tryInlineCodec(value) { it: ID<Any?> ->
-            success(it.bson)
-        }
-
+    override fun encode(value: Any?) = tryInlineCodec(value) { it: ID<Any?> -> success(it.bson) }
     override fun decode(value: Any?) =
         tryInlineCodec(value) { it: BsonElement ->
             when (it) {
-                is BsonObjectId -> success(ID<Any?>(it.value))
-                is BsonString -> success(ID<Any?>(it.value))
+                is BsonObjectId -> success(AnyID(it.value))
+                is BsonString -> success(AnyID(it.value))
                 else -> failure(
                     CodecException(
                         "Cannot decode ${it::class}; expected either " +
@@ -327,33 +262,6 @@ object BsonIDCodec : BsonCodec<ID<Any?>> {
     operator fun <T> invoke(): Codec<ID<T>, BsonElement> {
         @Suppress("UNCHECKED_CAST")
         return this as Codec<ID<T>, BsonElement>
-    }
-}
-
-/* ============= ------------------ ============= */
-
-/**
- * A codec simplifying enum encoding.
- */
-class EnumCodec<I, O>(private val pairs: List<Pair<I, O>>) : Codec<I, O> {
-    constructor(vararg pairs: Pair<I, O>) : this(pairs.asList())
-
-    override fun encode(value: Any?): Result<O> {
-        return pairs.firstOrNull { it.first == value }.let {
-            when (it) {
-                null -> failure(CodecException("Enum mismatch: $value"))
-                else -> success(it.second)
-            }
-        }
-    }
-
-    override fun decode(value: Any?): Result<I> {
-        return pairs.firstOrNull { it.second == value }.let {
-            when (it) {
-                null -> failure(CodecException("Enum mismatch: $value"))
-                else -> success(it.first)
-            }
-        }
     }
 }
 

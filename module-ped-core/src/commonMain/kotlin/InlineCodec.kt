@@ -31,6 +31,7 @@ package org.cufy.ped
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 inline fun <T> tryInlineCodecAny(value: Any?, block: (Any?) -> Result<T>): Result<T> {
     return block(value)
 }
@@ -48,13 +49,12 @@ inline fun <T> tryInlineCodecAny(value: Any?, block: (Any?) -> Result<T>): Resul
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 inline fun <T> tryInlineCodecAnyCatching(value: Any?, block: (Any?) -> T): Result<T> {
     return try {
         Result.success(block(value))
-    } catch (error: CodecException) {
-        Result.failure(error)
-    } catch (error: Throwable) {
-        Result.failure(CodecException(cause = error))
+    } catch (e: Throwable) {
+        Result.failure(e.toCodecException())
     }
 }
 
@@ -71,11 +71,9 @@ inline fun <T> tryInlineCodecAnyCatching(value: Any?, block: (Any?) -> T): Resul
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 inline fun <T> inlineCodecAny(value: Any?, block: (Any?) -> Result<T>): T {
-    return block(value).getOrElse {
-        if (it is CodecException) throw it
-        throw CodecException(cause = it)
-    }
+    return block(value).getOrElse { throw it.toCodecException() }
 }
 
 /**
@@ -90,13 +88,12 @@ inline fun <T> inlineCodecAny(value: Any?, block: (Any?) -> Result<T>): T {
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 inline fun <T> inlineCodecAnyCatching(value: Any?, block: (Any?) -> T): T {
     return try {
         block(value)
-    } catch (error: CodecException) {
-        throw error
-    } catch (error: Throwable) {
-        throw CodecException(cause = error)
+    } catch (e: Throwable) {
+        throw e.toCodecException()
     }
 }
 
@@ -121,11 +118,7 @@ inline fun <T> inlineCodecAnyCatching(value: Any?, block: (Any?) -> T): T {
 inline fun <reified T, U> tryInlineCodec(value: Any?, block: (T) -> Result<U>): Result<U> {
     return when (value) {
         is T -> block(value)
-        else -> Result.failure(
-            CodecException(
-                "Cannot encode/decode ${value?.let { it::class }}; expected ${T::class}"
-            )
-        )
+        else -> Result.failure(CodecException("Cannot encode/decode ${value?.let { it::class }}; expected ${T::class}"))
     }
 }
 
@@ -147,14 +140,14 @@ inline fun <reified T, U> tryInlineCodec(value: Any?, block: (T) -> Result<U>): 
  */
 @PEDMarker2
 inline fun <reified T, U> tryInlineCodecCatching(value: Any?, block: (T) -> U): Result<U> {
-    return tryInlineCodec<T, U>(value) {
-        try {
-            Result.success(block(it))
-        } catch (error: CodecException) {
-            Result.failure(error)
-        } catch (error: Throwable) {
-            Result.failure(CodecException(cause = error))
+    return when (value) {
+        is T -> try {
+            Result.success(block(value))
+        } catch (e: Throwable) {
+            Result.failure(e.toCodecException())
         }
+
+        else -> Result.failure(CodecException("Cannot encode/decode ${value?.let { it::class }}; expected ${T::class}"))
     }
 }
 
@@ -174,10 +167,11 @@ inline fun <reified T, U> tryInlineCodecCatching(value: Any?, block: (T) -> U): 
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 inline fun <reified T, U> inlineCodec(value: Any?, block: (T) -> Result<U>): U {
-    return tryInlineCodec(value, block).getOrElse {
-        if (it is CodecException) throw it
-        throw CodecException(cause = it)
+    return when (value) {
+        is T -> block(value).getOrElse { throw it.toCodecException() }
+        else -> throw CodecException("Cannot encode/decode ${value?.let { it::class }}; expected ${T::class}")
     }
 }
 
@@ -197,9 +191,17 @@ inline fun <reified T, U> inlineCodec(value: Any?, block: (T) -> Result<U>): U {
  * @since 2.0.0
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 inline fun <reified T, U> inlineCodecCatching(value: Any?, block: (T) -> U): U {
-    // will always wrap errors as CodecException
-    return tryInlineCodecCatching(value, block).getOrThrow()
+    return when (value) {
+        is T -> try {
+            block(value)
+        } catch (e: Throwable) {
+            throw e.toCodecException()
+        }
+
+        else -> throw CodecException("Cannot encode/decode ${value?.let { it::class }}; expected ${T::class}")
+    }
 }
 
 /* ============= ------------------ ============= */

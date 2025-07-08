@@ -54,16 +54,8 @@ infix fun <I, O> FieldCodec<I, O>.defaultIn(defaultValue: I): FieldCodec<I, O> {
     val codec = this
     return object : FieldCodec<I, O> {
         override val name = codec.name
-
-        override fun encode(value: Any?): Result<O> {
-            return codec.encode(value)
-        }
-
-        override fun decode(value: Any?): Result<I> {
-            return runCatching {
-                codec.decode(value).getOrDefault(defaultValue)
-            }
-        }
+        override fun encode(value: Any?) = codec.encode(value)
+        override fun decode(value: Any?) = runCatching { codec.decode(value).getOrDefault(defaultValue) }
     }
 }
 
@@ -75,16 +67,8 @@ infix fun <I, O> FieldCodec<I, O>.catchIn(block: (Throwable) -> I): FieldCodec<I
     val codec = this
     return object : FieldCodec<I, O> {
         override val name = codec.name
-
-        override fun encode(value: Any?): Result<O> {
-            return codec.encode(value)
-        }
-
-        override fun decode(value: Any?): Result<I> {
-            return runCatching {
-                codec.decode(value).getOrElse(block)
-            }
-        }
+        override fun encode(value: Any?) = codec.encode(value)
+        override fun decode(value: Any?) = runCatching { codec.decode(value).getOrElse(block) }
     }
 }
 
@@ -96,16 +80,8 @@ infix fun <I, O> FieldCodec<I, O>.defaultOut(defaultValue: O): FieldCodec<I, O> 
     val codec = this
     return object : FieldCodec<I, O> {
         override val name = codec.name
-
-        override fun encode(value: Any?): Result<O> {
-            return runCatching {
-                codec.encode(value).getOrDefault(defaultValue)
-            }
-        }
-
-        override fun decode(value: Any?): Result<I> {
-            return codec.decode(value)
-        }
+        override fun encode(value: Any?) = runCatching { codec.encode(value).getOrDefault(defaultValue) }
+        override fun decode(value: Any?) = codec.decode(value)
     }
 }
 
@@ -117,16 +93,8 @@ infix fun <I, O> FieldCodec<I, O>.catchOut(block: (Throwable) -> O): FieldCodec<
     val codec = this
     return object : FieldCodec<I, O> {
         override val name = codec.name
-
-        override fun encode(value: Any?): Result<O> {
-            return runCatching {
-                codec.encode(value).getOrElse(block)
-            }
-        }
-
-        override fun decode(value: Any?): Result<I> {
-            return codec.decode(value)
-        }
+        override fun encode(value: Any?) = runCatching { codec.encode(value).getOrElse(block) }
+        override fun decode(value: Any?) = codec.decode(value)
     }
 }
 
@@ -137,9 +105,7 @@ infix fun <I, O> FieldCodec<I, O>.catchOut(block: (Throwable) -> O): FieldCodec<
  * and backed by [this] codec.
  */
 @PEDMarker3
-infix fun <I, O> Codec<I, O>.at(name: String): FieldCodec<I, O> {
-    return FieldCodec(name, this)
-}
+infix fun <I, O> Codec<I, O>.at(name: String): FieldCodec<I, O> = FieldCodec(name, this)
 
 /**
  * Create a new field codec with the receiver name
@@ -155,9 +121,7 @@ infix fun <I, O> Codec<I, O>.at(name: String): FieldCodec<I, O> {
  * ```
  */
 @PEDMarker3
-infix fun <I, O> String.be(codec: Codec<I, O>): FieldCodec<I, O> {
-    return FieldCodec(this, codec)
-}
+infix fun <I, O> String.be(codec: Codec<I, O>): FieldCodec<I, O> = FieldCodec(this, codec)
 
 /**
  * Create a new field codec with the receiver name
@@ -165,6 +129,7 @@ infix fun <I, O> String.be(codec: Codec<I, O>): FieldCodec<I, O> {
  * backed by the codec of [other].
  */
 @PEDMarker2
+@Deprecated("Will be removed in the future")
 infix fun <I, O> FieldCodec<*, *>.dot(other: FieldCodec<I, O>): FieldCodec<I, O> {
     return FieldCodec("${this.name}.${other.name}", other)
 }

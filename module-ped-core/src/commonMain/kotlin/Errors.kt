@@ -23,3 +23,5 @@ package org.cufy.ped
  */
 open class CodecException(message: String? = null, cause: Throwable? = null) :
     RuntimeException(message ?: cause?.message, cause)
+
+fun Throwable.toCodecException() = this as? CodecException ?: CodecException(cause = this)

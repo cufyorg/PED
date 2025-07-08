@@ -20,6 +20,7 @@ package org.cufy.ped
  * its content tagged with the given language [tag].
  */
 @PEDMarker3
+@Deprecated("Will be removed in the future")
 infix fun String.lang(tag: String): String {
     if (tag.isEmpty()) return this
     return "$this#$tag"
@@ -30,17 +31,8 @@ infix fun String.lang(tag: String): String {
  * its name tagged with the given language [tag].
  */
 @PEDMarker3
+@Deprecated("Will be removed in the future")
 infix fun <I, O> FieldCodec<I, O>.lang(tag: String): FieldCodec<I, O> {
-    if (tag.isEmpty()) return this
-    return FieldCodec("$name#$tag", this)
-}
-
-/**
- * Return a field codec derived from this one with
- * its name tagged with the given language [tag].
- */
-@PEDMarker3
-infix fun <I, O> NullableFieldCodec<I, O>.lang(tag: String): NullableFieldCodec<I, O> {
     if (tag.isEmpty()) return this
     return FieldCodec("$name#$tag", this)
 }

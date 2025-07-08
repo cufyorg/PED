@@ -21,6 +21,7 @@ package org.cufy.ped
  * A builder building a basic [Codec] implementation.
  *
  */
+@PEDMarker2
 interface CodecBuilder<I, O> {
     /**
      * The encoding block.
@@ -71,23 +72,10 @@ fun <I, O> CodecBuilder(): CodecBuilder<I, O> {
 /**
  * Create a new codec configured using the given [block].
  */
-fun <I, O> Codec(block: CodecBuilder<I, O>.() -> Unit): Codec<I, O> {
+fun <I, O> Codec(block: context(CodecBuilder<I, O>) () -> Unit): Codec<I, O> {
     val builder = CodecBuilder<I, O>()
     builder.apply(block)
     return builder.build()
-}
-
-/**
- * Helper class for creating `object` classes built with a [CodecBuilder].
- *
- * @param block the codec builder block. (invoked immediately)
- */
-abstract class CodecClass<I, O>(block: CodecBuilder<I, O>.() -> Unit) : Codec<I, O> {
-    private val codec = Codec(block)
-
-    override fun encode(value: Any?) = codec.encode(value)
-
-    override fun decode(value: Any?) = codec.decode(value)
 }
 
 /* ============= ------------------ ============= */
@@ -100,8 +88,10 @@ abstract class CodecClass<I, O>(block: CodecBuilder<I, O>.() -> Unit) : Codec<I,
  * @see tryInlineCodecAny
  */
 @PEDMarker3
-fun <I, O> CodecBuilder<I, O>.encodeAny(block: (Any?) -> Result<O>) {
-    encodeBlock = block
+@Deprecated("Will be removed in the future")
+context(builder: CodecBuilder<I, O>)
+fun <I, O> encodeAny(block: (Any?) -> Result<O>) {
+    builder.encodeBlock = block
 }
 
 /**
@@ -114,8 +104,10 @@ fun <I, O> CodecBuilder<I, O>.encodeAny(block: (Any?) -> Result<O>) {
  * @see tryInlineCodecAnyCatching
  */
 @PEDMarker3
-fun <I, O> CodecBuilder<I, O>.encodeAnyCatching(block: (Any?) -> O) {
-    encodeAny { tryInlineCodecAnyCatching(it, block) }
+@Deprecated("Will be removed in the future")
+context(builder: CodecBuilder<I, O>)
+fun <I, O> encodeAnyCatching(block: (Any?) -> O) {
+    builder.encodeBlock = { tryInlineCodecAnyCatching(it, block) }
 }
 
 // Encode
@@ -133,8 +125,9 @@ fun <I, O> CodecBuilder<I, O>.encodeAnyCatching(block: (Any?) -> O) {
  * @see tryInlineCodec
  */
 @PEDMarker3
-inline fun <reified I, O> CodecBuilder<I, O>.encode(crossinline block: (I) -> Result<O>) {
-    encodeAny { tryInlineCodec(it, block) }
+context(builder: CodecBuilder<I, O>)
+inline fun <reified I, O> encode(crossinline block: (I) -> Result<O>) {
+    builder.encodeBlock = { tryInlineCodec(it, block) }
 }
 
 /**
@@ -151,8 +144,9 @@ inline fun <reified I, O> CodecBuilder<I, O>.encode(crossinline block: (I) -> Re
  * @see tryInlineCodecCatching
  */
 @PEDMarker3
-inline fun <reified I, O> CodecBuilder<I, O>.encodeCatching(crossinline block: (I) -> O) {
-    encodeAny { tryInlineCodecCatching(it, block) }
+context(builder: CodecBuilder<I, O>)
+inline fun <reified I, O> encodeCatching(crossinline block: (I) -> O) {
+    builder.encodeBlock = { tryInlineCodecCatching(it, block) }
 }
 
 /* ============= ------------------ ============= */
@@ -165,8 +159,10 @@ inline fun <reified I, O> CodecBuilder<I, O>.encodeCatching(crossinline block: (
  * @see tryInlineCodecAny
  */
 @PEDMarker3
-fun <I, O> CodecBuilder<I, O>.decodeAny(block: (Any?) -> Result<I>) {
-    decodeBlock = block
+@Deprecated("Will be removed in the future")
+context(builder: CodecBuilder<I, O>)
+fun <I, O> decodeAny(block: (Any?) -> Result<I>) {
+    builder.decodeBlock = block
 }
 
 /**
@@ -179,8 +175,10 @@ fun <I, O> CodecBuilder<I, O>.decodeAny(block: (Any?) -> Result<I>) {
  * @see tryInlineCodecAnyCatching
  */
 @PEDMarker3
-fun <I, O> CodecBuilder<I, O>.decodeAnyCatching(block: (Any?) -> I) {
-    decodeAny { tryInlineCodecAnyCatching(it, block) }
+@Deprecated("Will be removed in the future")
+context(builder: CodecBuilder<I, O>)
+fun <I, O> decodeAnyCatching(block: (Any?) -> I) {
+    builder.decodeBlock = { tryInlineCodecAnyCatching(it, block) }
 }
 
 // Decode
@@ -198,8 +196,9 @@ fun <I, O> CodecBuilder<I, O>.decodeAnyCatching(block: (Any?) -> I) {
  * @see tryInlineCodec
  */
 @PEDMarker3
-inline fun <I, reified O> CodecBuilder<I, O>.decode(crossinline block: (O) -> Result<I>) {
-    decodeAny { tryInlineCodec(it, block) }
+context(builder: CodecBuilder<I, O>)
+inline fun <I, reified O> decode(crossinline block: (O) -> Result<I>) {
+    builder.decodeBlock = { tryInlineCodec(it, block) }
 }
 
 /**
@@ -216,8 +215,9 @@ inline fun <I, reified O> CodecBuilder<I, O>.decode(crossinline block: (O) -> Re
  * @see tryInlineCodecCatching
  */
 @PEDMarker3
-inline fun <I, reified O> CodecBuilder<I, O>.decodeCatching(crossinline block: (O) -> I) {
-    decodeAny { tryInlineCodecCatching(it, block) }
+context(builder: CodecBuilder<I, O>)
+inline fun <I, reified O> decodeCatching(crossinline block: (O) -> I) {
+    builder.decodeBlock = { tryInlineCodecCatching(it, block) }
 }
 
 /* ============= ------------------ ============= */

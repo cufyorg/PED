@@ -1,9 +1,6 @@
 package org.cufy.ped
 
-import org.cufy.bson.BsonDocument
-import org.cufy.bson.ID
-import org.cufy.bson.bson
-import org.cufy.bson.java
+import org.cufy.bson.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -60,7 +57,7 @@ class ExampleTest {
         val nameSource = "Hello World".bson
         val codec = Bson.Int32 defaultIn 0
 
-        val name = nameSource decodeAny codec
+        val name = nameSource decode codec
 
         assertEquals(0, name)
     }

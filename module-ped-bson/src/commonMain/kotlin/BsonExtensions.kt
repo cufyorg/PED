@@ -18,39 +18,28 @@ package org.cufy.ped
 import org.cufy.bson.*
 
 /**
- * Return a field codec derived from this one with
- * its name tagged with the given language [tag].
- */
-@PEDMarker3
-@DeprecatedWithContextParameters
-infix fun <I> BsonFieldCodec<I>.lang(tag: String): BsonFieldCodec<I> {
-    if (tag.isEmpty()) return this
-    return FieldCodec("$name#$tag", this)
-}
-
-/**
- * Return a field codec derived from this one with
- * its name tagged with the given language [tag].
- */
-@PEDMarker3
-@DeprecatedWithContextParameters
-infix fun <I> BsonNullableFieldCodec<I>.lang(tag: String): BsonNullableFieldCodec<I> {
-    if (tag.isEmpty()) return this
-    return FieldCodec("$name#$tag", this)
-}
-
-/**
  * Create an instance [I] from first constructing a [BsonDocument] with
  * the given [block] then decoding it with [this] codec.
  */
 inline operator fun <I> BsonCodec<I>.invoke(block: BsonDocumentBlock): I {
-    return BsonDocument(block) decode this
+    return decode(BsonDocument(block)).getOrElse { throw it.toCodecException() }
 }
 
 /**
  * Get the value of the field with the name of the
  * given [codec] and decode it using the given [codec].
  */
-operator fun <I> BsonDocumentLike.get(codec: FieldCodec<I, BsonElement>): I {
-    return this[codec.name] decodeAny codec
+operator fun <I> BsonDocumentLike.get(codec: BsonFieldCodec<I>): I {
+    val element = this[codec.name]
+    return codec.decode(element).getOrElse { throw it.toCodecException() }
+}
+
+operator fun <I> MutableBsonDocumentLike.set(codec: BsonFieldCodec<I>, value: I) {
+    val element = codec.encode(value).getOrElse { throw it.toCodecException() }
+    put(codec.name, element)
+}
+
+context(builder: BsonDocumentBuilder)
+infix fun <I> BsonFieldCodec<I>.by(value: I) {
+    builder[this] = value
 }
