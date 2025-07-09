@@ -25,6 +25,17 @@ import kotlin.time.Instant
 typealias BsonCodec<I> = Codec<I, BsonElement>
 typealias BsonFieldCodec<I> = FieldCodec<I, BsonElement>
 typealias BsonEnumCodec<I> = EnumCodec<I, BsonElement>
+typealias BsonCodecBuilder<I> = CodecBuilder<I, BsonElement>
+
+/* ============= ------------------ ============= */
+
+fun <I> BsonCodecBuilder(): BsonCodecBuilder<I> {
+    return CodecBuilder()
+}
+
+fun <I> BsonCodec(block: context(BsonCodecBuilder<I>) () -> Unit): BsonCodec<I> {
+    return Codec(block)
+}
 
 /* ============= ------------------ ============= */
 
