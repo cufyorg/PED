@@ -15,6 +15,8 @@
  */
 package org.cufy.ped
 
+import kotlin.Result.Companion.failure
+
 /* ============= ------------------ ============= */
 
 /**
@@ -149,6 +151,28 @@ inline fun <reified I, O> encodeCatching(crossinline block: (I) -> O) {
     builder.encodeBlock = { tryInlineCodecCatching(it, block) }
 }
 
+@PEDMarker3
+context(builder: CodecBuilder<in I, O>)
+inline fun <reified I, J, O> encode(codec: Codec<J, O>, crossinline block: (I) -> Result<J>) {
+    builder.encodeBlock = {
+        tryInlineCodec(it, block).fold(
+            { codec.encode(it) },
+            { failure(it) },
+        )
+    }
+}
+
+@PEDMarker3
+context(builder: CodecBuilder<in I, O>)
+inline fun <reified I, J, O> encodeCatching(codec: Codec<J, O>, crossinline block: (I) -> J) {
+    builder.encodeBlock = {
+        tryInlineCodecCatching(it, block).fold(
+            { codec.encode(it) },
+            { failure(it) },
+        )
+    }
+}
+
 /* ============= ------------------ ============= */
 
 // Decode-Any
@@ -218,6 +242,28 @@ inline fun <I, reified O> decode(crossinline block: (O) -> Result<I>) {
 context(builder: CodecBuilder<I, in O>)
 inline fun <I, reified O> decodeCatching(crossinline block: (O) -> I) {
     builder.decodeBlock = { tryInlineCodecCatching(it, block) }
+}
+
+@PEDMarker3
+context(builder: CodecBuilder<I, O>)
+inline fun <I, reified J, O> decode(codec: Codec<in J, O>, crossinline block: (J) -> Result<I>) {
+    builder.decodeBlock = {
+        codec.decode(it).fold(
+            { tryInlineCodec(it, block) },
+            { failure(it) },
+        )
+    }
+}
+
+@PEDMarker3
+context(builder: CodecBuilder<I, O>)
+inline fun <I, reified J, O> decodeCatching(codec: Codec<in J, O>, crossinline block: (J) -> I) {
+    builder.decodeBlock = {
+        codec.decode(it).fold(
+            { tryInlineCodecCatching(it, block) },
+            { failure(it) },
+        )
+    }
 }
 
 /* ============= ------------------ ============= */
