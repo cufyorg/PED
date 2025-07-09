@@ -93,7 +93,7 @@ data class Document1f2(val document: BsonDocument) {
 
 val Document1f2.birthday1 get() = document[Document1.Birthday1]
 
-val Document1f1Codec = Codec {
+val Document1f1Codec = BsonCodec {
     encodeCatching { it: Document1f1 ->
         BsonDocument {
             Document1.Id by it.id
@@ -108,4 +108,20 @@ val Document1f1Codec = Codec {
             age = it[Document1.Age]
         )
     }
+}
+
+@JvmInline
+value class CustomScalar(val value: String)
+
+val ChSq: BsonCodec<CharSequence> = TODO()
+
+val CustomScalarCodec = BsonCodec<CustomScalar> {
+    encodeCatching(Bson.String) { it.value }
+    decodeCatching(Bson.String) { CustomScalar(it) }
+    encodeCatching(ChSq) { it.value }
+    decodeCatching(ChSq) { xyz: String -> CustomScalar(xyz) }
+    decodeCatching { it: BsonString -> CustomScalar(it.value) }
+    encodeCatching { it: CustomScalar -> it.value.bson }
+    decodeCatching { CustomScalar(it decode Bson.String) }
+    encodeCatching { it.value.bson }
 }
