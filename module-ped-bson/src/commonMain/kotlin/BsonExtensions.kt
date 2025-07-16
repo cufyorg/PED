@@ -17,10 +17,14 @@ package org.cufy.ped
 
 import org.cufy.bson.*
 
+/* ============= ------------------ ============= */
+
 typealias BsonDocumentCodecBlock<I> = context(BsonDocumentBuilder, BsonCodec<I>) () -> Unit
 
 fun <I> BsonDocument(codec: BsonCodec<I>, block: BsonDocumentCodecBlock<I>) =
     BsonDocument { context(codec) { block() } }
+
+/* ============= ------------------ ============= */
 
 /**
  * Create an instance [I] from first constructing a [BsonDocument] with
@@ -43,28 +47,52 @@ operator fun <I> MutableBsonDocumentLike.set(codec: BsonFieldCodec<I>, value: I)
     put(codec.name, value encode codec)
 }
 
+/* ============= ------------------ ============= */
+
+@PEDMarker3
 infix fun <T> T.encodeOne(codec: BsonCodec<List<T>>): BsonElement =
     ((listOf(this) encode codec) as BsonArray)[0]
 
+@PEDMarker3
 infix fun <T> BsonElement.decodeOne(codec: BsonCodec<List<T>>): T =
     (BsonArray(this) decode codec).single()
 
+/* ============= ------------------ ============= */
+
+@PEDMarker2
+context(codec: BsonCodec<List<T>>)
+fun <T> encodeOne(value: T): BsonElement = value encodeOne codec
+
+@PEDMarker2
+context(codec: BsonCodec<List<T>>)
+fun <T> decodeOne(value: BsonElement): T = value decodeOne codec
+
+/* ============= ------------------ ============= */
+
+@BsonMarker2
 context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<I>.by(value: I) {
     builder[this.name] = value encode this
 }
 
+@BsonMarker2
 context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<I>.by(block: BsonDocumentCodecBlock<I>) {
     builder[this.name] = BsonDocument(codec, block)
 }
 
+/* ============= ------------------ ============= */
+
+@PEDMarker2
 context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<List<I>>.byOne(value: I) {
     builder[this.name] = value encodeOne this
 }
 
+@PEDMarker2
 context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<List<I>>.byOne(block: BsonDocumentCodecBlock<I>) {
     builder[this.name] = BsonDocument(codec.Single, block)
 }
+
+/* ============= ------------------ ============= */
