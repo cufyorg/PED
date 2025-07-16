@@ -35,11 +35,10 @@ operator fun <I> BsonDocumentLike.get(codec: BsonFieldCodec<I>): I {
 }
 
 operator fun <I> MutableBsonDocumentLike.set(codec: BsonFieldCodec<I>, value: I) {
-    val element = codec.encode(value).getOrElse { throw it.toCodecException() }
-    put(codec.name, element)
+    put(codec.name, value encode codec)
 }
 
 context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<I>.by(value: I) {
-    builder[this] = value
+    builder[this.name] = value encode this
 }

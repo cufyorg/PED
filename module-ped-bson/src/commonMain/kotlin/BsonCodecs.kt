@@ -49,7 +49,16 @@ fun <I> BsonCodec(block: context(BsonCodecBuilder<I>) () -> Unit): BsonCodec<I> 
  * @author LSafer
  * @since 2.0.0
  */
-class BsonNullableCodec<I>(val codec: BsonCodec<I>) : Codec<I?, BsonElement> {
+class BsonNullableCodec<I>(val codec: BsonCodec<I>) : BsonCodec<I?> {
+    companion object {
+        fun <I> of(codec: BsonCodec<I>): BsonCodec<I?> {
+            if (codec is BsonNullableCodec<*>)
+                @Suppress("UNCHECKED_CAST")
+                return codec as BsonNullableCodec<I>
+            return BsonNullableCodec(codec)
+        }
+    }
+
     override fun encode(value: Any?) = when (value) {
         null -> success(BsonNull)
         else -> codec.encode(value)
@@ -68,8 +77,8 @@ class BsonNullableCodec<I>(val codec: BsonCodec<I>) : Codec<I?, BsonElement> {
  *
  * Nullish values includes `null`, [BsonNull] and [BsonUndefined]
  */
-val <I> BsonCodec<I>.Nullable: BsonNullableCodec<I>
-    get() = BsonNullableCodec(this)
+val <I> BsonCodec<I>.Nullable: BsonCodec<I?>
+    get() = BsonNullableCodec.of(this)
 
 /**
  * Obtain a codec that always decodes nullish
@@ -78,8 +87,8 @@ val <I> BsonCodec<I>.Nullable: BsonNullableCodec<I>
  *
  * Nullish values includes `null`, [BsonNull] and [BsonUndefined]
  */
-val <I> FieldCodec<I, BsonElement>.Nullable: BsonFieldCodec<I?>
-    get() = FieldCodec(name, (this as BsonCodec<I>).Nullable)
+val <I> BsonFieldCodec<I>.Nullable: BsonFieldCodec<I?>
+    get() = FieldCodec(this.name, BsonNullableCodec.of(this.codec))
 
 /* ============= ------------------ ============= */
 
@@ -89,6 +98,12 @@ val <I> FieldCodec<I, BsonElement>.Nullable: BsonFieldCodec<I?>
  * individual item.
  */
 class BsonArrayCodec<I>(val codec: BsonCodec<I>) : BsonCodec<List<I>> {
+    companion object {
+        fun <I> of(codec: BsonCodec<I>): BsonCodec<List<I>> {
+            return BsonArrayCodec(codec)
+        }
+    }
+
     override fun encode(value: Any?) = tryInlineCodec(value) { it: List<*> ->
         success(BsonArray {
             it.mapTo(contextOf()) {
@@ -113,16 +128,16 @@ class BsonArrayCodec<I>(val codec: BsonCodec<I>) : BsonCodec<List<I>> {
  * uses this codec to encode/decode each
  * individual item.
  */
-val <I> BsonCodec<I>.Array: BsonArrayCodec<I>
-    get() = BsonArrayCodec(this)
+val <I> BsonCodec<I>.Array: BsonCodec<List<I>>
+    get() = BsonArrayCodec.of(this)
 
 /**
  * Obtain a codec for [List] and [BsonArray] that
  * uses this codec to encode/decode each
  * individual item.
  */
-val <I> FieldCodec<I, BsonElement>.Array: BsonFieldCodec<List<I>>
-    get() = FieldCodec(name, (this as BsonCodec<I>).Array)
+val <I> BsonFieldCodec<I>.Array: BsonFieldCodec<List<I>>
+    get() = FieldCodec(this.name, BsonArrayCodec.of(this.codec))
 
 /* ============= ------------------ ============= */
 
