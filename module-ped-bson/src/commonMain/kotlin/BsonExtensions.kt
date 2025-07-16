@@ -17,6 +17,11 @@ package org.cufy.ped
 
 import org.cufy.bson.*
 
+typealias BsonDocumentCodecBlock<I> = context(BsonDocumentBuilder, BsonCodec<I>) () -> Unit
+
+fun <I> BsonDocument(codec: BsonCodec<I>, block: BsonDocumentCodecBlock<I>) =
+    BsonDocument { context(codec) { block() } }
+
 /**
  * Create an instance [I] from first constructing a [BsonDocument] with
  * the given [block] then decoding it with [this] codec.
@@ -47,4 +52,19 @@ infix fun <T> BsonElement.decodeOne(codec: BsonCodec<List<T>>): T =
 context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<I>.by(value: I) {
     builder[this.name] = value encode this
+}
+
+context(builder: BsonDocumentBuilder)
+infix fun <I> BsonFieldCodec<I>.by(block: BsonDocumentCodecBlock<I>) {
+    builder[this.name] = BsonDocument(codec, block)
+}
+
+context(builder: BsonDocumentBuilder)
+infix fun <I> BsonFieldCodec<List<I>>.byOne(value: I) {
+    builder[this.name] = value encodeOne this
+}
+
+context(builder: BsonDocumentBuilder)
+infix fun <I> BsonFieldCodec<List<I>>.byOne(block: BsonDocumentCodecBlock<I>) {
+    builder[this.name] = BsonDocument(codec.Single, block)
 }
