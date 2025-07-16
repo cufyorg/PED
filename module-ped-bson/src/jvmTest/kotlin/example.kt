@@ -113,7 +113,10 @@ val Document1f1Codec = BsonCodec {
 @JvmInline
 value class CustomScalar(val value: String)
 
-val ChSq: BsonCodec<CharSequence> = TODO()
+val ChSq: BsonCodec<CharSequence> = BsonCodec {
+    encodeCatching { it: CharSequence -> it.toString().bson }
+    decodeCatching { it: BsonString -> it.value }
+}
 
 val CustomScalarCodec = BsonCodec<CustomScalar> {
     encodeCatching(Bson.String) { it.value }
