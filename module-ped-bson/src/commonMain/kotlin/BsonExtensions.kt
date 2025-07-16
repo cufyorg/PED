@@ -38,6 +38,12 @@ operator fun <I> MutableBsonDocumentLike.set(codec: BsonFieldCodec<I>, value: I)
     put(codec.name, value encode codec)
 }
 
+infix fun <T> T.encodeOne(codec: BsonCodec<List<T>>): BsonElement =
+    ((listOf(this) encode codec) as BsonArray)[0]
+
+infix fun <T> BsonElement.decodeOne(codec: BsonCodec<List<T>>): T =
+    (BsonArray(this) decode codec).single()
+
 context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<I>.by(value: I) {
     builder[this.name] = value encode this

@@ -16,6 +16,7 @@
 package org.cufy.ped
 
 import org.cufy.bson.*
+import org.cufy.ped.internal.AbstractWrapperCodec
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
 import kotlin.time.Instant
@@ -138,6 +139,38 @@ val <I> BsonCodec<I>.Array: BsonCodec<List<I>>
  */
 val <I> BsonFieldCodec<I>.Array: BsonFieldCodec<List<I>>
     get() = FieldCodec(this.name, BsonArrayCodec.of(this.codec))
+
+/* ============= ------------------ ============= */
+
+class BsonSingleCodec<I>(val codec: BsonCodec<List<I>>) : BsonCodec<I> {
+    companion object {
+        tailrec fun <I> of(codec: BsonCodec<List<I>>): BsonCodec<I> = when (codec) {
+            is BsonFieldCodec<List<I>> -> of(codec.codec)
+            is AbstractWrapperCodec<List<I>, BsonElement> -> of(codec.codec)
+            is BsonArrayCodec<I> -> codec.codec
+            else -> BsonSingleCodec(codec)
+        }
+    }
+
+    override fun encode(value: Any?) = codec.encode(listOf(value))
+
+    override fun decode(value: Any?) = codec.decode(value).fold(
+        {
+            when (it.size) {
+                0 -> failure(CodecException("Single codec failure. Array is empty"))
+                1 -> success(it[0])
+                else -> failure(CodecException("Single codec failure. Array has multiple items"))
+            }
+        },
+        { failure(it) }
+    )
+}
+
+val <I> BsonCodec<List<I>>.Single: BsonCodec<I>
+    get() = BsonSingleCodec.of(this)
+
+val <I> BsonFieldCodec<List<I>>.Single: BsonFieldCodec<I>
+    get() = FieldCodec(name, codec.Single)
 
 /* ============= ------------------ ============= */
 
