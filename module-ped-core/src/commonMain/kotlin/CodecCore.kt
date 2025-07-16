@@ -112,6 +112,10 @@ inline infix fun <I, O> I.encode(codec: Codec<I, O>): O {
     return codec.encode(this).getOrElse { throw it.toCodecException() }
 }
 
+@PEDMarker2
+context(codec: Codec<I, O>)
+inline fun <I, O> encode(value: I): O = value encode codec
+
 /* ============= ------------------ ============= */
 
 // Decode Any
@@ -206,5 +210,9 @@ inline fun <I, O> decode(value: O, codec: Codec<I, O>): I {
 inline infix fun <I, O> O.decode(codec: Codec<I, O>): I {
     return codec.decode(this).getOrElse { throw it.toCodecException() }
 }
+
+@PEDMarker2
+context(codec: Codec<I, O>)
+inline fun <I, O> decode(value: O): I = value decode codec
 
 /* ============= ------------------ ============= */
