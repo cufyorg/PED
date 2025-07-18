@@ -81,6 +81,22 @@ infix fun <I> BsonFieldCodec<I>.by(block: BsonDocumentCodecBlock<I>) {
     builder[this.name] = BsonDocument(codec, block)
 }
 
+@BsonMarker2
+context(builder: BsonDocumentBuilder)
+infix fun <I> BsonFieldCodec<I>.flatBy(value: /* Document */I) {
+    (value encode this).let { it as BsonDocument }.forEach { (name, value) ->
+        builder["${this.name}.${name}"] = value
+    }
+}
+
+@BsonMarker2
+context(builder: BsonDocumentBuilder)
+infix fun <I> BsonFieldCodec<I>.flatBy(block: BsonDocumentCodecBlock<I>) {
+    BsonDocument(codec, block).forEach { (name, value) ->
+        builder["${this.name}.${name}"] = value
+    }
+}
+
 /* ============= ------------------ ============= */
 
 @PEDMarker2
@@ -93,6 +109,22 @@ infix fun <I> BsonFieldCodec<List<I>>.byOne(value: I) {
 context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<List<I>>.byOne(block: BsonDocumentCodecBlock<I>) {
     builder[this.name] = BsonDocument(codec.Single, block)
+}
+
+@PEDMarker2
+context(builder: BsonDocumentBuilder)
+infix fun <I> BsonFieldCodec<List<I>>.flatByOne(value: I) {
+    (value encodeOne this).let { it as BsonDocument }.forEach { (name, value) ->
+        builder["${this.name}.${name}"] = value
+    }
+}
+
+@PEDMarker2
+context(builder: BsonDocumentBuilder)
+infix fun <I> BsonFieldCodec<List<I>>.flatByOne(block: BsonDocumentCodecBlock<I>) {
+    BsonDocument(codec.Single, block).forEach { (name, value) ->
+        builder["${this.name}.${name}"] = value
+    }
 }
 
 /* ============= ------------------ ============= */

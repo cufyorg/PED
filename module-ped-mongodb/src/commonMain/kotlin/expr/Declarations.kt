@@ -3,10 +3,7 @@
 
 package org.cufy.ped.expr
 
-import org.cufy.bson.BsonDocumentBuilder
-import org.cufy.bson.BsonMarker2
-import org.cufy.bson.bson
-import org.cufy.bson.by
+import org.cufy.bson.*
 import org.cufy.mongodb.ExperimentalMongodbApi
 import org.cufy.mongodb.expr.Expr
 import org.cufy.mongodb.expr.Expr._Element
@@ -21,7 +18,10 @@ infix fun BsonFieldCodec<*>.by(expr: Expr<*>) =
 
 /* ============= ------------------ ============= */
 
-@BsonMarker2
+@BsonMarker4
 fun <T : _Element> `$`(path: BsonFieldCodec<*>) = Expr<T>("$${path.name}".bson)
+
+@BsonMarker4
+fun <T : _Element> `$$`(path: BsonFieldCodec<*>) = Expr<T>("$$${path.name}".bson)
 
 /* ============= ------------------ ============= */
