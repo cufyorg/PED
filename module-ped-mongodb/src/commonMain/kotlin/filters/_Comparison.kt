@@ -18,7 +18,7 @@ import org.cufy.ped.encodeOne
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/eq */
 @BsonMarker2
-@JvmName($$"(BsonCodec<T>)_$eq_T")
+@JvmName($$"$BsonCodec$T$_$eq_T")
 context(_: /* Operator */BsonDocumentBuilder, _: BsonCodec<T>)
 fun <T> `$eq`(value: T) =
     `$eq` by encode(value)
@@ -26,21 +26,21 @@ fun <T> `$eq`(value: T) =
 /** https://www.mongodb.com/docs/manual/reference/operator/query/eq */
 @Suppress("CONTEXTUAL_OVERLOAD_SHADOWED")
 @BsonMarker2
-@JvmName($$"(BsonCodec<List<T>>)_$eq_T")
+@JvmName($$"$BsonCodec$List$T$_$eq_T")
 context(_: /* Operator */BsonDocumentBuilder, _: BsonCodec<List<T>>)
 fun <T> `$eq`(value: T) =
     `$eq` by encodeOne(value)
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/eq */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<T>_$eq_T")
+@JvmName($$"BsonFieldCodec$T_$eq_T")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun <T> BsonFieldCodec<T>.`$eq`(value: T) =
     this.name by { `$eq` by (value encode this) }
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/eq */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<List<T>>_$eq_T")
+@JvmName($$"BsonFieldCodec$List$T_$eq_T")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun <T> BsonFieldCodec<List<T>>.`$eq`(value: T) =
     this.name by { `$eq` by (value encodeOne this) }
@@ -89,14 +89,14 @@ fun <T> `$in`(values: List<T>) =
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/in */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<T>_$in_List<T>")
+@JvmName($$"BsonFieldCodec$T_$in_List$T")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun <T> BsonFieldCodec<T>.`$in`(values: List<T>) =
     this.name by { `$in` by array { values.forEach { by(it encode this) } } }
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/in */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<List<T>>_$in_List<T>")
+@JvmName($$"BsonFieldCodec$List$T_$in_List$T")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun <T> BsonFieldCodec<List<T>>.`$in`(values: List<T>) =
     this.name by { `$in` by (values encode this) }
@@ -133,7 +133,7 @@ infix fun <T> BsonFieldCodec<T>.`$lte`(value: T) =
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/ne */
 @BsonMarker2
-@JvmName($$"(BsonCodec<T>)_$ne_T")
+@JvmName($$"$BsonCodec$T$_$ne_T")
 context(_: /* Operator */BsonDocumentBuilder, _: BsonCodec<T>)
 fun <T> `$ne`(value: T) =
     `$ne` by encode(value)
@@ -141,21 +141,21 @@ fun <T> `$ne`(value: T) =
 /** https://www.mongodb.com/docs/manual/reference/operator/query/ne */
 @Suppress("CONTEXTUAL_OVERLOAD_SHADOWED")
 @BsonMarker2
-@JvmName($$"(BsonCodec<List<T>>)_$ne_T")
+@JvmName($$"$BsonCodec$List$T$_$ne_T")
 context(_: /* Operator */BsonDocumentBuilder, _: BsonCodec<List<T>>)
 fun <T> `$ne`(value: T) =
     `$ne` by encodeOne(value)
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/ne */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<T>_$ne_T")
+@JvmName($$"BsonFieldCodec$T_$ne_T")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun <T> BsonFieldCodec<T>.`$ne`(value: T) =
     this.name by { `$ne` by (value encode this) }
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/ne */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<List<T>>_$ne_T")
+@JvmName($$"BsonFieldCodec$List$T_$ne_T")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun <T> BsonFieldCodec<List<T>>.`$ne`(value: T) =
     this.name by { `$ne` by (value encodeOne this) }
@@ -176,14 +176,14 @@ fun <T> `$nin`(values: List<T>) =
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/nin */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<T>_$nin_List<T>")
+@JvmName($$"BsonFieldCodec$T_$nin_List$T")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun <T> BsonFieldCodec<T>.`$nin`(values: List<T>) =
     this.name by { `$nin` by array { values.forEach { by(it encode this) } } }
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/nin */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<List<T>>_$nin_List<T>")
+@JvmName($$"BsonFieldCodec$List$T_$nin_List$T")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun <T> BsonFieldCodec<List<T>>.`$nin`(values: List<T>) =
     this.name by { `$nin` by (values encode this) }

@@ -33,14 +33,14 @@ infix fun BsonFieldCodec<*>.`$type`(type: String) =
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/type */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<*>_$type_List<Int>")
+@JvmName($$"BsonFieldCodec_$type_List$Int")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun BsonFieldCodec<*>.`$type`(types: List<Int>) =
     this.name by { `$type` by array { types.forEach { contextOf().add(it.bson) } } }
 
 /** https://www.mongodb.com/docs/manual/reference/operator/query/type */
 @BsonMarker2
-@JvmName($$"BsonFieldCodec<*>_$type_List<String>")
+@JvmName($$"BsonFieldCodec_$type_List$String")
 context(_: /* Query */BsonDocumentBuilder)
 infix fun BsonFieldCodec<*>.`$type`(types: List<String>) =
     this.name by { `$type` by array { types.forEach { contextOf().add(it.bson) } } }
