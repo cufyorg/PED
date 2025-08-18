@@ -38,6 +38,10 @@ fun <I> BsonCodec(block: context(BsonCodecBuilder<I>) () -> Unit): BsonCodec<I> 
     return Codec(block)
 }
 
+inline fun <reified I : Enum<I>> BsonEnumCodec(block: (I) -> BsonElement): BsonEnumCodec<I> {
+    return EnumCodec(block)
+}
+
 /* ============= ------------------ ============= */
 
 /**

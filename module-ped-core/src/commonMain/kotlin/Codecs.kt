@@ -2,8 +2,13 @@ package org.cufy.ped
 
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
+import kotlin.enums.enumEntries
 
 /* ============= ------------------ ============= */
+
+inline fun <reified I : Enum<I>, O> EnumCodec(block: (I) -> O): EnumCodec<I, O> {
+    return EnumCodec(enumEntries<I>().map { it to block(it) })
+}
 
 /**
  * A codec simplifying enum encoding.
