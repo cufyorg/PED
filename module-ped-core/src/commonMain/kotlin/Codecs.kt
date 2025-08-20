@@ -36,3 +36,16 @@ class EnumCodec<I, O>(private val pairs: List<Pair<I, O>>) : Codec<I, O> {
 }
 
 /* ============= ------------------ ============= */
+
+@ExperimentalPEDApi
+fun <I> buildStringCodec(decode: (String) -> I): Codec<I, String> {
+    return Codec {
+        val builder = contextOf()
+        builder.encodeBlock = {
+            success(it.toString())
+        }
+        decodeCatching(decode)
+    }
+}
+
+/* ============= ------------------ ============= */
