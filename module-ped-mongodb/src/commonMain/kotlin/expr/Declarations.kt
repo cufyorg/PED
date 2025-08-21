@@ -19,9 +19,9 @@ infix fun BsonFieldCodec<*>.by(expr: Expr<*>) =
 /* ============= ------------------ ============= */
 
 @BsonMarker4
-fun <T : _Element> `$`(path: BsonFieldCodec<*>) = Expr<T>("$${path.name}".bson)
+fun `$`(path: BsonFieldCodec<*>) = Expr<_Element>("$${path.name}".bson)
 
 @BsonMarker4
-fun <T : _Element> `$$`(path: BsonFieldCodec<*>) = Expr<T>("$$${path.name}".bson)
+fun `$$`(path: BsonFieldCodec<*>) = Expr<_Element>("$$${path.name}".bson)
 
 /* ============= ------------------ ============= */

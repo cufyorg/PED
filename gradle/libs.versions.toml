@@ -3,7 +3,7 @@ kotlin = "2.2.0"
 kotlinx-serialization = "1.8.1"
 
 mongodb = "5.5.1"
-mongokt = "0.2.0-beta.12"
+mongokt = "0.2.0-beta.20"
 
 [libraries]
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
