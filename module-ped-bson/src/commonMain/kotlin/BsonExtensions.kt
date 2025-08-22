@@ -83,6 +83,12 @@ infix fun <I> BsonFieldCodec<I>.by(block: BsonDocumentCodecBlock<I>) {
 
 @BsonMarker2
 context(builder: BsonDocumentBuilder)
+infix fun BsonFieldCodec<*>.byOf(map: BsonDocumentLike) {
+    builder[this.name] = map[this.name] ?: return
+}
+
+@BsonMarker2
+context(builder: BsonDocumentBuilder)
 infix fun <I> BsonFieldCodec<I>.flatBy(value: /* Document */I) {
     (value encode this).let { it as BsonDocument }.forEach { (name, value) ->
         builder["${this.name}.${name}"] = value
